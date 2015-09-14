@@ -9,7 +9,7 @@ module LazyAnt
     include Endpoint
     include Connection
 
-    def initialize(&block)
+    def initialize(&_block)
       yield config if block_given?
       config.freeze
     end
