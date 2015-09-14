@@ -14,8 +14,8 @@ module LazyAnt
       @name = name.to_s
     end
 
-    def self.name
-      @name
+    class << self
+      attr_reader :name
     end
   end
 end

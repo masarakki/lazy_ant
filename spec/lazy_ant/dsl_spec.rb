@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 class MyClient
-  class User ; end
+  class User; end
 
   include LazyAnt::DSL
 
@@ -26,7 +26,6 @@ RSpec.describe LazyAnt::DSL do
   describe 'configuration' do
     subject { client.config }
     describe '#initialize' do
-
       context 'without block' do
         let(:client) { MyClient.new }
         its(:client_token) { is_expected.to eq '' }

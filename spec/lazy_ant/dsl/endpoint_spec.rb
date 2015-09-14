@@ -15,7 +15,6 @@ describe LazyAnt::DSL::Endpoint do
       api :find, get: '/users/:user_id/posts/:id', entity: Post
       api :search, get: '/users/:user_id/posts', multi: true, entity: Post
     end
-
   end
   let(:api) { klazz.new }
   it { expect(api).to be_respond_to :find }
@@ -43,7 +42,7 @@ describe LazyAnt::DSL::Endpoint do
 
       context 'error' do
         before { stub_request(:get, url).to_return(status: 404, body: '') }
-        it {  expect { post }.to raise_error Faraday::Error::ResourceNotFound }
+        it { expect { post }.to raise_error Faraday::Error::ResourceNotFound }
       end
     end
 
