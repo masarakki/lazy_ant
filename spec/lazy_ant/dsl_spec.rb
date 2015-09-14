@@ -1,7 +1,11 @@
 require 'spec_helper'
+require 'active_model'
 
 class MyClient
-  class User; end
+  class User
+    include ActiveModel::Model
+    attr_accessor :id, :name
+  end
 
   include LazyAnt::DSL
 
@@ -18,6 +22,8 @@ class MyClient
   group :users do
     api :find, get: '/users/:id.json', entity: User
   end
+
+  api :version, get: '/version.json'
 end
 
 RSpec.describe LazyAnt::DSL do
@@ -75,5 +81,21 @@ RSpec.describe LazyAnt::DSL do
       end
     end
     it { expect(client.connection).to be_a Faraday::Connection }
+  end
+
+  describe 'api' do
+    let(:client) { MyClient.new }
+    it do
+      stub_request(:get, 'http://api.example.com/users/1.json').to_return(status: 200, body: '{"id": 1, "name": "masarakki"}')
+      user = client.users.find(1)
+      expect(user.id).to eq 1
+      expect(user.name).to eq 'masarakki'
+    end
+
+    it do
+      stub_request(:get, 'http://api.example.com/version.json').to_return(status: 200, body: '{"version": "1.0.0"}')
+      version = client.version
+      expect(version['version']).to eq '1.0.0'
+    end
   end
 end

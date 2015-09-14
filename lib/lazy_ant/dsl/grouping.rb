@@ -12,7 +12,7 @@ module LazyAnt
             instance_eval(&block) if block
           end
           define_method name do
-            group_class.new
+            group_class.new(self)
           end
         end
       end
