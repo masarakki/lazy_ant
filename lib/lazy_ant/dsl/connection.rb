@@ -10,6 +10,7 @@ module LazyAnt
         @connection ||= Faraday.new(base_url) do |con|
           con.request :url_encoded
           con.request :json
+          con.response converter_name if converter_name
           con.response :json
           con.response :raise_error
           con.adapter Faraday.default_adapter
@@ -19,6 +20,10 @@ module LazyAnt
 
       def default_callback
         self.class.instance_variable_get(:@default_callback)
+      end
+
+      def converter_name
+        self.class.instance_variable_get(:@converter_name)
       end
 
       module ClassMethods
@@ -32,6 +37,10 @@ module LazyAnt
               url
             end
           end
+        end
+
+        def converter(name)
+          @converter_name = name
         end
 
         def connection(&block)

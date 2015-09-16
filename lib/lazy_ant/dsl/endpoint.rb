@@ -11,12 +11,12 @@ module LazyAnt
       module ClassMethods
         def api(name, options = {})
           method, path = endpoint(options)
-          conv = converter(options)
+          converter = entity_converter(options)
           define_method name do |*args|
             params = args.extract_options!
             path = generate_url(path, args)
             response = connection.send(method, path, params)
-            conv.call(response.body)
+            converter.call(response.body)
           end
         end
 
@@ -29,7 +29,7 @@ module LazyAnt
           [method, path]
         end
 
-        def converter(entity: nil, multi: false)
+        def entity_converter(entity: nil, multi: false)
           conv = entity ? ->(x) { entity.new(x) } : ->(x) { x }
           multi ? -> (x) { x.map(&conv) } : -> (x) { conv.call(x) }
         end

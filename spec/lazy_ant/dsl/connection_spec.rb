@@ -1,6 +1,15 @@
 require 'spec_helper'
 
 describe LazyAnt::DSL::Connection do
+  let!(:converter) do
+    Class.new Faraday::Response::Middleware do
+      def on_complete(env)
+        env.body = env.body['data'] if env.status == 200
+      end
+      Faraday::Response.register_middleware my_converter: self
+    end
+  end
+
   let(:klazz) do
     Class.new do
       include LazyAnt::DSL::Connection
@@ -9,6 +18,8 @@ describe LazyAnt::DSL::Connection do
       connection do |conn|
         conn.headers['X-client-token'] = config.client_token
       end
+
+      converter :my_converter
     end
   end
 
@@ -28,5 +39,13 @@ describe LazyAnt::DSL::Connection do
   describe 'base_url' do
     subject { client }
     its(:base_url) { is_expected.to eq 'http://dev.com' }
+  end
+
+  describe 'converter' do
+    let(:body) { '{"data": {"id": 1}, "status": 200, "error": []}' }
+    before { stub_request(:get, 'http://dev.com/').and_return(status: 200, body: body) }
+    subject { connection.get '/' }
+
+    its(:body) { is_expected.to eq 'id' => 1 }
   end
 end

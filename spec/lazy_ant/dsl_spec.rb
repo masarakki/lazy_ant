@@ -7,6 +7,13 @@ class MyClient
     attr_accessor :id, :name
   end
 
+  class DataPicker < Faraday::Response::Middleware
+    def on_complete(env)
+      env.body = env.body['data']
+    end
+    Faraday::Response.register_middleware data_picker: self
+  end
+
   include LazyAnt::DSL
 
   configurable :client_token, default: ''
@@ -18,6 +25,8 @@ class MyClient
   connection do |faraday|
     faraday.headers['X-client-token'] = config.client_token
   end
+
+  converter :data_picker
 
   group :users do
     api :find, get: '/users/:id.json', entity: User
@@ -86,14 +95,14 @@ RSpec.describe LazyAnt::DSL do
   describe 'api' do
     let(:client) { MyClient.new }
     it do
-      stub_request(:get, 'http://api.example.com/users/1.json').to_return(status: 200, body: '{"id": 1, "name": "masarakki"}')
+      stub_request(:get, 'http://api.example.com/users/1.json').to_return(status: 200, body: '{"data": {"id": 1, "name": "masarakki"}}')
       user = client.users.find(1)
       expect(user.id).to eq 1
       expect(user.name).to eq 'masarakki'
     end
 
     it do
-      stub_request(:get, 'http://api.example.com/version.json').to_return(status: 200, body: '{"version": "1.0.0"}')
+      stub_request(:get, 'http://api.example.com/version.json').to_return(status: 200, body: '{"data": {"version": "1.0.0"}}')
       version = client.version
       expect(version['version']).to eq '1.0.0'
     end
