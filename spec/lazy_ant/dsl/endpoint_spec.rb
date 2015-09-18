@@ -1,11 +1,8 @@
 require 'spec_helper'
-require 'active_model'
 
 describe LazyAnt::DSL::Endpoint do
   let(:klazz) do
-    class Post
-      include ActiveModel::Model
-      attr_accessor :id, :body
+    class Post < OpenStruct
     end
 
     Class.new do

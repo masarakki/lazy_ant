@@ -1,41 +1,8 @@
 require 'spec_helper'
-require 'active_model'
-
-class MyClient
-  class User
-    include ActiveModel::Model
-    attr_accessor :id, :name
-  end
-
-  class DataPicker < Faraday::Response::Middleware
-    def on_complete(env)
-      env.body = env.body['data']
-    end
-    Faraday::Response.register_middleware data_picker: self
-  end
-
-  include LazyAnt::DSL
-
-  configurable :client_token, default: ''
-  configurable :client_secret, default: ''
-  configurable :dev?, default: false
-
-  base_url 'http://api.example.com'
-
-  connection do |faraday|
-    faraday.headers['X-client-token'] = config.client_token
-  end
-
-  converter :data_picker
-
-  group :users do
-    api :find, get: '/users/:id.json', entity: User
-  end
-
-  api :version, get: '/version.json'
-end
 
 RSpec.describe LazyAnt::DSL do
+  it { expect(MyClient::Config).not_to be_nil }
+
   before { MyClient.instance_variable_set(:@global_config, nil) }
 
   describe 'configuration' do
@@ -93,7 +60,13 @@ RSpec.describe LazyAnt::DSL do
   end
 
   describe 'api' do
-    let(:client) { MyClient.new }
+    let(:client) do
+      MyClient.new do |config|
+        config.client_token = 'token'
+      end
+    end
+    it { expect(client.users.base_url).to eq 'http://api.example.com' }
+    it { expect(client.users.posts.base_url).to eq 'http://api2.example.com' }
     it do
       stub_request(:get, 'http://api.example.com/users/1.json').to_return(status: 200, body: '{"data": {"id": 1, "name": "masarakki"}}')
       user = client.users.find(1)
@@ -105,6 +78,12 @@ RSpec.describe LazyAnt::DSL do
       stub_request(:get, 'http://api.example.com/version.json').to_return(status: 200, body: '{"data": {"version": "1.0.0"}}')
       version = client.version
       expect(version['version']).to eq '1.0.0'
+    end
+
+    it do
+      stub_request(:get, 'http://api2.example.com/users/10/posts/1.json').with(headers: { 'X-Client-Token' => 'token' }).to_return(status: 200, body: '{"data": {"user_id": 10, "id": 1}}')
+      post = client.users.posts.find(10, 1)
+      expect(post).to eq 'user_id' => 10, 'id' => 1
     end
   end
 end

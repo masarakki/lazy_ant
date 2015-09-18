@@ -19,11 +19,15 @@ module LazyAnt
       end
 
       def default_callback
-        self.class.instance_variable_get(:@default_callback)
+        @default_callback ||=
+          self.class.instance_variable_get(:@default_callback) ||
+          @parent && @parent.default_callback
       end
 
       def converter_name
-        self.class.instance_variable_get(:@converter_name)
+        @coverter_name ||=
+          self.class.instance_variable_get(:@converter_name) ||
+          @parent && @parent.converter_name
       end
 
       module ClassMethods

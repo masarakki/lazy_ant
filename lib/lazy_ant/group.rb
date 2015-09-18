@@ -1,5 +1,7 @@
 module LazyAnt
   class Group
+    include LazyAnt::DSL::Endpoint
+
     def initialize(parent)
       @parent = parent
     end
@@ -7,14 +9,17 @@ module LazyAnt
     def inspect
       "<LazyAnt::Group #{name}>"
     end
-    include LazyAnt::DSL::Endpoint
+
+    def config
+      @parent.config
+    end
+
+    def base_url
+      @parent.base_url
+    end
 
     def name
       self.class.name
-    end
-
-    def connection
-      @parent.connection
     end
 
     def self.name=(name)
