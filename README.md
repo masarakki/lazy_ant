@@ -46,6 +46,11 @@ class MyApiClient
   group :user do
     api :find, get: '/users/:id.json', entity: :User
     api :search, get: '/users/search.json', multi: true, entity: :User
+
+    group :posts do
+      base_url 'https://myapi2.example.com'
+      api :find, get: '/users/:user_id/posts/:id.json'
+    end
   end
 end
 ```

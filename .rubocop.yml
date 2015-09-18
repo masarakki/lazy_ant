@@ -12,5 +12,4 @@ Style/Documentation:
     - 'lib/lazy_ant/dsl/grouping.rb'
     - 'lib/lazy_ant/group.rb'
     - 'lib/lazy_ant/version.rb'
-    - 'spec/lazy_ant/dsl/endpoint_spec.rb'
-    - 'spec/lazy_ant/dsl_spec.rb'
+    - 'spec/**/*'
