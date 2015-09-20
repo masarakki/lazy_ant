@@ -48,4 +48,25 @@ describe LazyAnt::DSL::Connection do
 
     its(:body) { is_expected.to eq 'id' => 1 }
   end
+
+  describe '.base_url' do
+    before { allow(client).to receive(:config) { double(client_token: token, dev: true) } }
+    context 'with callable' do
+      let(:client) { klazz.new }
+      let(:klazz) do
+        Class.new do
+          include LazyAnt::DSL::Connection
+
+          def self.base_urls(prod, dev)
+            proc do
+              url = config.dev ? dev : prod
+              "http://#{url}"
+            end
+          end
+          base_url(&base_urls('a.com', 'b.com'))
+        end
+      end
+      it { expect(client.base_url).to eq 'http://b.com' }
+    end
+  end
 end
