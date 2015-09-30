@@ -46,7 +46,27 @@ describe LazyAnt::DSL::Connection do
     before { stub_request(:get, 'http://dev.com/').and_return(status: 200, body: body) }
     subject { connection.get '/' }
 
-    its(:body) { is_expected.to eq 'id' => 1 }
+    describe 'symbol converter' do
+      its(:body) { is_expected.to eq 'id' => 1 }
+    end
+
+    describe 'block converted' do
+      let(:klazz) do
+        Class.new do
+          include LazyAnt::DSL::Connection
+
+          base_url { config.dev ? 'http://dev.com' : 'http://prod.com' }
+          connection do |conn|
+            conn.headers['X-client-token'] = config.client_token
+          end
+
+          converter do |env|
+            env.body = env.body['data'] if env.status == 200
+          end
+        end
+      end
+      its(:body) { is_expected.to eq 'id' => 1 }
+    end
   end
 
   describe '.base_url' do
