@@ -5,9 +5,11 @@ module LazyAnt
   module DSL
     module Connection
       extend ActiveSupport::Concern
+      attr_reader :default_params
 
       def connection
-        @connection ||= Faraday.new(base_url) do |con|
+        return @connection if @connection
+        @connection = Faraday.new(base_url) do |con|
           con.request request_type
           use_converter(con)
           con.response response_type
@@ -15,6 +17,13 @@ module LazyAnt
           con.adapter Faraday.default_adapter
           instance_exec(con, &default_callback) if default_callback
         end
+        fix_params
+      end
+
+      def fix_params
+        @default_params = @connection.params.dup
+        @connection.params.clear
+        @connection
       end
 
       def use_converter(con)

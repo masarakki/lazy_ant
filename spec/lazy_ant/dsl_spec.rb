@@ -61,12 +61,19 @@ RSpec.describe LazyAnt::DSL do
 
   describe 'request and response' do
     let(:client) { MyClient.new }
+
+    it do
+      stub_request(:get, 'http://api.example.com/version.xml?foo=bar&hello=world').to_return(body: '<data><version>1.1</version></data>', status: 200)
+      res = client.request_and_response.get(hello: 'world')
+      expect(res).to eq 'version' => '1.1'
+    end
+
     it do
       stub_request(:post, 'http://api.example.com/version.xml').with(
-        body: { hello: 'world' },
+        body: { hello: 'world', foo: 'bar' },
         headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
       ).to_return(body: '<data><version>1.1</version></data>', status: 200)
-      res = client.request_and_response.version(hello: 'world')
+      res = client.request_and_response.post(hello: 'world')
       expect(res).to eq 'version' => '1.1'
     end
 

@@ -43,8 +43,14 @@ class MyClient
   group :request_and_response do
     request :url_encoded
     response :xml
+    connection do |con|
+      con.request :url_encoded
+      con.response :xml
+      con.params[:foo] = 'bar'
+    end
 
-    api :version, post: '/version.xml'
+    api :post, post: '/version.xml'
+    api :get, get: '/version.xml'
   end
 
   api :version, post: '/version.json'
