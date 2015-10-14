@@ -41,6 +41,7 @@ class MyApiClient
   connection do |con|
     con.headers['X-client-token'] = config.client_token
     con.user_agent = 'my-api-client ver. 0.1'
+    con.request = :url_encoded        # default :json
   end
 
   group :user do

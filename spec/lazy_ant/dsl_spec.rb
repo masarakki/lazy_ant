@@ -59,6 +59,27 @@ RSpec.describe LazyAnt::DSL do
     it { expect(client.connection).to be_a Faraday::Connection }
   end
 
+  describe 'request and response' do
+    let(:client) { MyClient.new }
+    it do
+      stub_request(:post, 'http://api.example.com/version.xml').with(
+        body: { hello: 'world' },
+        headers: { 'Content-Type' => 'application/x-www-form-urlencoded' }
+      ).to_return(body: '<data><version>1.1</version></data>', status: 200)
+      res = client.request_and_response.version(hello: 'world')
+      expect(res).to eq 'version' => '1.1'
+    end
+
+    it do
+      stub_request(:post, 'http://api.example.com/version.json').with(
+        body: { hello: 'world' },
+        headers: { 'Content-Type' => 'application/json' }
+      ).to_return(body: '{"data": { "version": "1.1" } }', status: 200)
+      res = client.version(hello: 'world')
+      expect(res).to eq 'version' => '1.1'
+    end
+  end
+
   describe 'api' do
     let(:client) do
       MyClient.new do |config|
@@ -75,7 +96,7 @@ RSpec.describe LazyAnt::DSL do
     end
 
     it do
-      stub_request(:get, 'http://api.example.com/version.json').to_return(status: 200, body: '{"data": {"version": "1.0.0"}}')
+      stub_request(:post, 'http://api.example.com/version.json').to_return(status: 200, body: '{"data": {"version": "1.0.0"}}')
       version = client.version
       expect(version['version']).to eq '1.0.0'
     end

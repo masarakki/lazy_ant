@@ -4,6 +4,7 @@ require 'rspec/its'
 require 'webmock/rspec'
 require 'lazy_ant'
 require 'ostruct'
+require 'multi_xml'
 
 class User < OpenStruct
 end
@@ -39,5 +40,12 @@ class MyClient
     end
   end
 
-  api :version, get: '/version.json'
+  group :request_and_response do
+    request :url_encoded
+    response :xml
+
+    api :version, post: '/version.xml'
+  end
+
+  api :version, post: '/version.json'
 end
