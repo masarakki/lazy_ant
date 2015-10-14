@@ -9,13 +9,13 @@ module LazyAnt
       include Grouping
 
       module ClassMethods
-        def api(name, options = {})
+        def api(name, options = {}, &block)
           method, path = endpoint(options)
           converter = entity_converter(options)
           define_method name do |*args|
             params = args.extract_options!
             path = generate_url(path, args)
-            response = connection.send(method, path, params)
+            response = connection.send(method, path, params, &block)
             converter.call(response.body)
           end
         end
