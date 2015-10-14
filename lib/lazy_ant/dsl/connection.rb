@@ -8,10 +8,9 @@ module LazyAnt
 
       def connection
         @connection ||= Faraday.new(base_url) do |con|
-          con.request :url_encoded
-          con.request :json
+          con.request request_type
           use_converter(con)
-          con.response :json
+          con.response response_type
           con.response :raise_error
           con.adapter Faraday.default_adapter
           instance_exec(con, &default_callback) if default_callback
@@ -44,6 +43,18 @@ module LazyAnt
           @parent && @parent.converter_name
       end
 
+      def request_type
+        @request_type ||=
+          self.class.instance_variable_get(:@request_type) ||
+          @parent && @parent.request_type || :json
+      end
+
+      def response_type
+        @response_type ||=
+          self.class.instance_variable_get(:@response_type) ||
+          @parent && @parent.response_type || :json
+      end
+
       module ClassMethods
         def base_url(url = nil, &block)
           if block_given?
@@ -64,6 +75,14 @@ module LazyAnt
 
         def connection(&block)
           @default_callback = block
+        end
+
+        def request(type)
+          @request_type = type
+        end
+
+        def response(type)
+          @response_type = type
         end
       end
     end
