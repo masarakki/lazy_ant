@@ -8,6 +8,16 @@ module LazyAnt
       include DSL::Connection
       include Grouping
 
+      def update_params(req)
+        case req.method
+        when :get, :head, :delete
+          default_params.each { |k, v| req.params[k] = v }
+        when :post, :put
+          default_params.each { |k, v| req.body[k] = v }
+        end
+        yield(req) if block_given?
+      end
+
       module ClassMethods
         def api(name, options = {}, &block)
           method, path = endpoint(options)
@@ -15,7 +25,9 @@ module LazyAnt
           define_method name do |*args|
             params = args.extract_options!
             path = generate_url(path, args)
-            response = connection.send(method, path, params, &block)
+            response = connection.send(method, path, params) do |req|
+              update_params(req, &block)
+            end
             converter.call(response.body)
           end
         end
