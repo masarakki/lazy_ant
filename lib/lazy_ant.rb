@@ -1,4 +1,4 @@
-require 'active_support'
+require 'active_support/all'
 require 'lazy_ant/version'
 require 'lazy_ant/dsl'
 require 'lazy_ant/config'

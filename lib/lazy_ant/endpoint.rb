@@ -12,8 +12,7 @@ module LazyAnt
   # => GET '/echo?SHIT_KEY=test'
   #
   class Endpoint
-    extend Forwardable
-    def_delegators :'self.class', :verb, :path, :params
+    class_attribute :verb, :path, :params
 
     def initialize(*args)
       @query = default_query.merge(args.extract_options!)
@@ -69,22 +68,21 @@ module LazyAnt
     end
 
     class << self
-      attr_reader :verb, :path
       %w(get put post delete).each do |verb|
         class_eval(<<-EOS, __FILE__, __LINE__ + 1)
           def #{verb}(path)
-            @verb = :#{verb}
-            @path = path
+            self.verb = :#{verb}
+            self.path = path
           end
         EOS
       end
 
-      def params
-        @params ||= {}
-      end
-
       def param(name, options = {})
         params[name] = options
+      end
+
+      def inherited(child)
+        child.params = {}
       end
     end
   end
