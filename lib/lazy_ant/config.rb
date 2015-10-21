@@ -6,28 +6,53 @@ module LazyAnt
       end
     end
 
-    def self.key(name, options = {})
-      writer, reader, var, question = accessor_methods(name)
-      keys[var] = options
-
-      define_method writer do |val|
-        fail ArgumentError unless !question || val == false || val == true
-        instance_variable_set(var, val)
+    def deprecated(method, instead)
+      msg = "#{self.class.name}##{method} is deprecated"
+      if instead.is_a?(Symbol)
+        writer, = self.class.accessor_methods(instead)
+        msg += ", use #{self.class.name}##{writer}"
       end
-
-      define_method reader do
-        instance_variable_get(var)
-      end
+      warn msg
     end
 
-    def self.keys
-      @keys ||= {}
+    def validate(val)
+      fail ArgumentError unless val == true || val == false
     end
 
-    def self.accessor_methods(name)
-      attr = name.to_s.gsub(/[!\?]$/, '')
-      var = "@#{attr}".to_sym
-      ["#{attr}=".to_sym, name.to_sym, var, name[-1] == '?']
+    class << self
+      def key(name, options = {})
+        writer, reader, var, question = accessor_methods(name)
+        options[:question] = question
+        keys[var] = options
+
+        define_writer(writer, var, options)
+        define_reader(reader, var, options)
+      end
+
+      def define_writer(writer, var, options = {})
+        define_method writer do |val|
+          deprecated writer, options[:deprecated] if options[:deprecated]
+          validate(val) if options[:question]
+          instance_variable_set(var, val)
+        end
+      end
+
+      def define_reader(reader, var, options = {})
+        define_method reader do
+          deprecated reader, options[:deprecated] if options[:deprecated]
+          instance_variable_get(var)
+        end
+      end
+
+      def keys
+        @keys ||= {}
+      end
+
+      def accessor_methods(name)
+        attr = name.to_s.gsub(/[!\?]$/, '')
+        var = "@#{attr}".to_sym
+        ["#{attr}=".to_sym, name.to_sym, var, name[-1] == '?']
+      end
     end
   end
 end
