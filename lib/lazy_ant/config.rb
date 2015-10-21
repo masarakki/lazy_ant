@@ -37,9 +37,8 @@ module LazyAnt
         end
       end
 
-      def define_reader(reader, var, options = {})
+      def define_reader(reader, var, _options = {})
         define_method reader do
-          deprecated reader, options[:deprecated] if options[:deprecated]
           instance_variable_get(var)
         end
       end
