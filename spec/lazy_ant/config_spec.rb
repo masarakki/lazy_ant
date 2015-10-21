@@ -27,10 +27,10 @@ describe LazyAnt::Config do
 
     describe 'warn deprecated' do
       it do
-        expect { subject.old = true }.to output(/#old= is deprecated/).to_stderr
+        expect { subject.old = true }.to output(/config\.old= is deprecated/).to_stderr
       end
       it do
-        expect { subject.instead = true }.to output(/#dev=/).to_stderr
+        expect { subject.instead = true }.to output(/config\.dev=/).to_stderr
       end
     end
   end
