@@ -7,10 +7,10 @@ module LazyAnt
     end
 
     def deprecated(method, instead)
-      msg = "#{self.class.name}##{method} is deprecated"
+      msg = "config.#{method} is deprecated"
       if instead.is_a?(Symbol)
         writer, = self.class.accessor_methods(instead)
-        msg += ", use #{self.class.name}##{writer}"
+        msg += ", use config.#{writer}"
       end
       warn msg
     end
