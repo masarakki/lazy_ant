@@ -7,6 +7,8 @@ describe LazyAnt::Config do
       key :world
       key :dev?, default: false
       key :https?, default: true
+      key :old?, deprecated: true
+      key :instead?, deprecated: :dev?
     end
   end
   let(:config) { klass.new }
@@ -21,6 +23,15 @@ describe LazyAnt::Config do
       it { expect { subject.hello = 1 }.not_to raise_error }
       it { expect { subject.hello = true }.not_to raise_error }
       it { expect { subject.https = false }.to change { subject.https? }.to(false) }
+    end
+
+    describe 'warn deprecated' do
+      it do
+        expect { subject.old = true }.to output(/#old= is deprecated/).to_stderr
+      end
+      it do
+        expect { subject.instead = true }.to output(/#dev=/).to_stderr
+      end
     end
   end
 
