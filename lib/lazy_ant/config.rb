@@ -16,7 +16,7 @@ module LazyAnt
     end
 
     def validate(val)
-      fail ArgumentError unless val == true || val == false
+      raise ArgumentError unless val == true || val == false
     end
 
     class << self

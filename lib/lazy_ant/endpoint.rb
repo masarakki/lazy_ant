@@ -31,7 +31,7 @@ module LazyAnt
 
     def validate!
       params.select { |_k, v| v[:required] }.each do |k, _v|
-        fail ArgumentError, "params[:#{k}] is required!" unless @query[k]
+        raise ArgumentError, "params[:#{k}] is required!" unless @query[k]
       end
     end
 
@@ -41,7 +41,7 @@ module LazyAnt
       arg_names = url.scan(/:([\w_]+)/).map(&:first)
       arg_names.each do |k|
         arg = args.shift
-        fail ArgumentError, "missing required key :#{k}" unless arg
+        raise ArgumentError, "missing required key :#{k}" unless arg
         url.gsub!(/:#{k}/, arg.to_s)
       end
       url
