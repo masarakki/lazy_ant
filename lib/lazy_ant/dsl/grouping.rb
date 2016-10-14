@@ -5,7 +5,7 @@ module LazyAnt
 
       module ClassMethods
         def group(name, &block)
-          base = self.respond_to?(:name) ? self.name : nil
+          base = respond_to?(:name) ? self.name : nil
           group_name = [base, name].compact.join('.')
           group_class = Class.new(LazyAnt::Group) do
             self.name = group_name

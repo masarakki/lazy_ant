@@ -1,7 +1,10 @@
+AllCops:
+  Exclude:
+    - '*.gemspec'
+    - 'vendor/bundle/**/*'
 Metrics/LineLength:
   Exclude:
     - 'spec/**/*'
-    - '*.gemspec'
 Style/Documentation:
   Exclude:
     - 'lib/lazy_ant/config.rb'
