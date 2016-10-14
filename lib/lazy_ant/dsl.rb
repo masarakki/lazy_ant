@@ -9,9 +9,12 @@ module LazyAnt
     include Endpoint
     include Connection
 
-    def initialize(&_block)
+    def initialize
       yield config if block_given?
       config.freeze
+      config.connection_callbacks.each do |callback|
+        instance_callbacks.push callback
+      end
     end
 
     module ClassMethods

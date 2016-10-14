@@ -5,7 +5,6 @@ module LazyAnt
   module DSL
     module Connection
       extend ActiveSupport::Concern
-      attr_reader :default_params
 
       def connection
         return @connection if @connection
@@ -15,8 +14,12 @@ module LazyAnt
           con.response response_type
           con.response :raise_error
           con.adapter Faraday.default_adapter
-          instance_exec(con, &default_callback) if default_callback
+          callbacks.each { |callback| instance_exec(con, &callback) }
         end
+      end
+
+      def callbacks
+        ([default_callback] + instance_callbacks).compact
       end
 
       def use_converter(con)
@@ -55,6 +58,11 @@ module LazyAnt
         @response_type ||=
           self.class.instance_variable_get(:@response_type) ||
           @parent && @parent.response_type || :json
+      end
+
+      def instance_callbacks
+        @instance_callbacks ||=
+          @parent && @parent.instance_callbacks || []
       end
 
       module ClassMethods

@@ -17,11 +17,20 @@ RSpec.describe LazyAnt::DSL do
       context 'with block' do
         let(:client) do
           MyClient.new do |conf|
+            conf.logger
             conf.client_token = 'token'
           end
         end
         its(:client_token) { is_expected.to eq 'token' }
         it { is_expected.to be_frozen }
+        it do
+          expects = expect_any_instance_of(Faraday::Connection)
+          expects.to receive(:response).with(:data_picker)
+          expects.to receive(:response).with(:json)
+          expects.to receive(:response).with(:raise_error)
+          expects.to receive(:response).with(:logger, {})
+          client.connection
+        end
       end
     end
 
