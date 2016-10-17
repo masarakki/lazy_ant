@@ -13,8 +13,8 @@ module LazyAnt
           use_converter(con)
           con.response response_type
           con.response :raise_error
-          con.adapter Faraday.default_adapter
           callbacks.each { |callback| instance_exec(con, &callback) }
+          con.adapter Faraday.default_adapter
         end
       end
 
