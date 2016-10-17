@@ -1,9 +1,12 @@
 module LazyAnt
   class Config
+    attr_reader :connection_callbacks
+
     def initialize
       self.class.keys.each do |var, options|
         instance_variable_set(var, options[:default])
       end
+      @connection_callbacks = []
     end
 
     def deprecated(method, instead)
@@ -17,6 +20,13 @@ module LazyAnt
 
     def validate(val)
       raise ArgumentError unless val == true || val == false
+    end
+
+    def logger(instance = nil, options = {})
+      @connection_callbacks << lambda do |con|
+        args = [:logger, instance, options].compact
+        con.send(:response, *args)
+      end
     end
 
     class << self

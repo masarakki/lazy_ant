@@ -62,6 +62,9 @@ and use it:
 client = MyApiClient.new do |config|
   config.client_token = 'hello'
   config.client_secret = 'world'
+
+  config.logger
+  # config.logger Logger.new, { some: 'option' }
 end
 
 client.user.find(1)
