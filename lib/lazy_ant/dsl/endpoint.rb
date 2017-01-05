@@ -33,7 +33,7 @@ module LazyAnt
 
         def entity_converter(entity: nil, multi: false)
           conv = entity ? ->(x) { entity.new(x) } : ->(x) { x }
-          multi ? -> (x) { x.map(&conv) } : -> (x) { conv.call(x) }
+          multi ? ->(x) { x.map(&conv) } : ->(x) { conv.call(x) }
         end
       end
     end
