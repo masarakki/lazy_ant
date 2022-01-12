@@ -43,7 +43,7 @@ describe LazyAnt::DSL::Endpoint do
 
       context 'error' do
         before { stub_request(:get, url).to_return(status: 404, body: '') }
-        it { expect { post }.to raise_error Faraday::Error::ResourceNotFound }
+        it { expect { post }.to raise_error Faraday::ResourceNotFound }
       end
     end
 
