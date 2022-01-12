@@ -23,7 +23,7 @@ module LazyAnt
       @query = connection.params.merge(@query)
       validate!
       connection.send(verb, @url, renamed_query) do |req|
-        req.params.clear if [:put, :post].include?(req.method)
+        req.params.clear if [:put, :post].include?(req.http_method)
       end
     end
 
