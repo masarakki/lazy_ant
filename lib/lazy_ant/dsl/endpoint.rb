@@ -15,7 +15,7 @@ module LazyAnt
             send(method, path) if method && path
             instance_eval(&block) if block
           end
-          converter = entity_converter(options)
+          converter = entity_converter(**options)
           define_method name do |*args|
             response = klazz.new(*args).execute(connection)
             converter.call(response.body)
